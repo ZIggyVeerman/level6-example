@@ -1,24 +1,48 @@
-package com.example.numbers_kotlin
+package com.example.numbers_kotlin.activity
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
+import com.example.numbers_kotlin.R
+import com.example.numbers_kotlin.vm.MainActivityViewModel
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel: MainActivityViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+        initViews()
+        observeViewModel()
+    }
+
+    private fun initViews() {
+        fab.setOnClickListener {
+            viewModel.refreshNumber() // Get a random number trivia when the fab is clicked.
         }
+    }
+
+    private fun observeViewModel() {
+        //observe the trivia object in ViewModel
+        viewModel.trivia.observe(this, Observer { trivia ->
+            tvTrivia.text = trivia.text
+        })
+
+        //each time the errorText LiveData changes in ViewModel, show an error via Toast
+        viewModel.errorText.observe(this, Observer { error ->
+            Toast.makeText(this, error, Toast.LENGTH_SHORT).show()
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
